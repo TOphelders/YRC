@@ -9,7 +9,7 @@ $(function() {
   })
     .done(function(res) {
       if(res.success) {
-        res.message.forEach(print_message);
+        res.data.forEach(print_message);
       } else {
         console.log(res.message);
       }

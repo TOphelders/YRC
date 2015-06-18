@@ -2,19 +2,9 @@ var User = function(collection) {
   this.collection = collection;
 }
 
-User.prototype.find = function(name, res) {
-  this.collection.findOne({username: name})
-    .error(function(erro) {
-      res(err.name + ': ' + err.message);
-    })
-    .success(function(doc) {
-      res(null, doc);
-    });
-}
-
-User.prototype.find_by_id(id, res) {
-  this.collection.findOne({_id: id})
-    .error(function(erro) {
+User.prototype.find = function(identifier, res) {
+  this.collection.findOne({$or: [{_id: identifier}, {username: identifier}]}
+    .error(function(err) {
       res(err.name + ': ' + err.message);
     })
     .success(function(doc) {

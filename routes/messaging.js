@@ -7,25 +7,25 @@ module.exports = function(app, io, db) {
     var start = Number(req.params.start);
     var end = Number(req.params.end);
 
-    var op = function(err, data) {
-      if (err) {
-        console.log(err);
-        res.json({
-          success: false,
-          data: null,
-          message: 'Unable to load past messages.'
-        });
-      } else {
-        res.json({
-          success: true,
-          data: data,
-          message: null
-        });
-      }
+    var success = function(data) {
+      res.json({
+        success: true,
+        data: data,
+        message: null
+      });
     };
 
-    if (start && end) model.find(op, [start, end]);
-    else model.find(op);
+    var failure = function(err) {
+      console.log(err.code + ': ' + err.message);
+      res.json({
+        success: false,
+        data: null,
+        message: 'Unable to load past messages.'
+      });
+    };
+
+    if (start && end) model.find([start, end]).then(success, failure);
+    else model.find().then(success, failure);
   });
 
   app.post('/message', function(req, res) {
@@ -33,28 +33,24 @@ module.exports = function(app, io, db) {
     var data = {
       user_id: messages.id(body.id),
       content: body.content,
-      time_sent: new Date(),
-      edited: false,
-      deleted: false
     };
 
-    model.create(data, function(err) {
-      if (err) {
-        console.log(err);
-        res.json({
-          success: false,
-          data: null,
-          message: 'Oops! Something went wrong when sending your message, wait for a second and try again.'
-        });
-      } else {
-        io.emit('message posted', data);
+    model.create(data)
+      .then(function(doc) {
+        io.emit('message posted', doc);
         res.json({
           success: true,
           data: null,
           message: 'Message successfully sent.'
         });
-      }
-    });
+      }, function(err) {
+        console.log(err.code + ': ' + err.message);
+        res.json({
+          success: false,
+          data: null,
+          message: 'Oops! Something went wrong when sending your message, wait for a second and try again.'
+        });
+      });
   });
 
   app.get('/message/:id', function(req, res) {
