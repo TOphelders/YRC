@@ -3,24 +3,24 @@ var Message = function(collection) {
 }
 
 Message.prototype.find = function(range) {
-  // Default value for range query, actually interpreted as [0, 20)
-  if (typeof range === 'undefined') range = [0, 20];
+  // Return first 20 messages by default
+  if (typeof range === 'undefined') range = [0, 19];
   var filter = {
     skip: range[0],
-    limit: range[1],
-    sort: {date_created: -1}
+    limit: range[1] - range[0] + 1,
+    sort: {time_sent: 1}
   };
 
   return this.collection.find({}, filter).then(format_data);
 }
 
 Message.prototype.find_by_id = function(id) {
-  return this.collection.findOne({_id: id}).then(format_data);
+  return this.collection.findOne({_id: this.collection.id(id)}).then(format_data);
 }
 
 Message.prototype.create = function(data) {
   var doc = {
-    user_id: data.user_id,
+    user_id: this.collection.id(data.user_id),
     content: data.content,
     time_sent: new Date(),
     edited: false,
@@ -32,12 +32,12 @@ Message.prototype.create = function(data) {
 
 Message.prototype.update = function(id, edit) {
   var update = {content: edit, edited: true};
-  return this.collection.updateById(id, update).then(format_data);
+  return this.collection.updateById(this.collection.id(id), update).then(format_data);
 }
 
 Message.prototype.remove = function(id, res) {
   var update = {deleted: true};
-  return this.collection.updateById(id, update).then(format_data);
+  return this.collection.updateById(this.collection.id(id), update).then(format_data);
 }
 
 function format_data(data) {
@@ -47,7 +47,8 @@ function format_data(data) {
     if (doc.deleted) content = 'MESSAGE DELETED';
     else if (doc.edited) date += '*';
     return {
-      user_id: doc.user_id,
+      message_id: doc._id.toString(),
+      user_id: doc.user_id.toString(),
       content: content,
       time_sent: time
     }

@@ -1,20 +1,35 @@
 module.exports = function(app, io, db) {
   var messages = db.get('messages');
   var users = db.get('users');
-  var model = require('../models/message_model.js')(messages);
+  var msg_model = require('../models/message_model.js')(messages);
+  var usr_model = require('../models/user_model.js')(users);
 
   app.get('/message(/start/:start/end/:end)?', function(req, res) {
     var start = Number(req.params.start);
     var end = Number(req.params.end);
+    var reply_data = [];
 
-    var success = function(data) {
+    // After documents were found, get the correct username for each one
+    var found = function(data) {
+      return data.reduce(function(prev, doc, inc) {
+        return prev.then(function(user) {
+          reply_data.push(data[inc]);
+          reply_data[inc].username = user.username;
+          return usr_model.find(doc.user_id);
+        });
+      }, usr_model.find(data[0].user_id));
+    };
+
+    // After last promise succeeds, send response
+    var success = function() {
       res.json({
         success: true,
-        data: data,
+        data: reply_data,
         message: null
       });
     };
 
+    // An error occurred either while loading messages or getting usernames
     var failure = function(err) {
       console.log(err.code + ': ' + err.message);
       res.json({
@@ -24,19 +39,25 @@ module.exports = function(app, io, db) {
       });
     };
 
-    if (start && end) model.find([start, end]).then(success, failure);
-    else model.find().then(success, failure);
+    if (start && end) msg_model.find([start, end])
+      .then(found)
+      .then(success, failure);
+    else msg_model.find()
+      .then(found)
+      .then(success, failure);
   });
 
   app.post('/message', function(req, res) {
     var body = req.body;
+    var username = body.username;
     var data = {
-      user_id: messages.id(body.id),
-      content: body.content,
+      user_id: body.id,
+      content: body.content
     };
 
-    model.create(data)
+    msg_model.create(data)
       .then(function(doc) {
+        doc.username = username;
         io.emit('message posted', doc);
         res.json({
           success: true,
@@ -54,65 +75,70 @@ module.exports = function(app, io, db) {
   });
 
   app.get('/message/:id', function(req, res) {
-    var id = messages.id(req.params.id);
-    model.find_by_id(id, function(err, data) {
-      if (err) {
-        console.log(err);
+    var id = req.params.id;
+    var reply_data;
+
+    msg_model.find_by_id(id)
+      .then(function(data) {
+        reply_data = data;
+        return usr_model.find(data.user_id);
+      })
+      .then(function(user)) {
+        reply_data.username = user.username;
+
+        res.json({
+          success: true,
+          data: reply_data,
+          message: null
+        });
+      }, function(err) {
+        console.log(err.code + ': ' + err.message);
         res.json({
           success: false,
           data: null,
-          message: 'Unable to find message ' + id + '.'
+          message: 'Unable to find message: ' + id + '.'
         });
-      } else {
-        res.json({
-          success: true,
-          data: data,
-          message: null
-        });
-      }
-    });
+      });
   });
 
   app.put('/message/:id', function(req, res) {
-    var id = messages.id(req.params.id);
+    var id = req.params.id;
     var body = req.body;
 
-    model.update(id, body.edit, function(err) {
-      if (err) {
-        console.log(err);
-        res.json({
-          success: false,
-          data: null,
-          message: 'Unable to update message ' + id + '.'
-        });
-      } else {
+    msg_model.update(id, body.edit)
+      .then(function() {
         res.json({
           success: true,
           data: null,
-          message: 'Successfully updated message ' + id + '.'
+          message: 'Successfully updated message: ' + id + '.'
         });
-      }
-    });
-  });
-
-  app.delete('/message/:id', function(req, res) {
-    var id = messages.id(req.params.id);
-
-    model.remove(id, function(err) {
-      if (err) {
-        console.log(err);
+      }, function(err) {
+        console.log(err.code + ': ' + err.message);
         res.json({
           success: false,
           data: null,
-          message: 'There was an error deleting message ' + id + '.'
+          message: 'There was an error trying to update message: ' + id + '.'
         });
-      } else {
+      });
+  });
+
+  app.delete('/message/:id', function(req, res) {
+    var id = req.params.id;
+
+    msg_model.remove(id)
+      .then(function() {
         res.json({
           success: true,
           data: null,
           message: 'Successfully deleted message ' + id + '.'
         });
-      }
-    });
+      }, function(err) {
+        console.log(err.code + ': ' + err.message);
+        res.json({
+          success: false,
+          data: null,
+          message: 'Something went wrong trying to delete message: ' + id + '.'
+        });
+      });
   });
 }

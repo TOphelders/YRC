@@ -2,19 +2,7 @@ $(function() {
   var socket = io();
 
   // Initial message loading
-  $.ajax({
-    url: '/message',
-    type: 'GET',
-    dataType: 'json'
-  })
-    .done(function(res) {
-      if(res.success) {
-        res.data.forEach(print_message);
-      } else {
-        console.log(res.message);
-      }
-    });
-
+  load_messages();
 
   $('#create_message').submit(function(event) {
     event.preventDefault();
@@ -40,9 +28,27 @@ $(function() {
   socket.on('message posted', print_message);
 });
 
+function load_messages(range) {
+  var url = '/message';
+  if (typeof range !== 'undefined') url += '/start/' + range[0] + '/end/' + range[1];
+
+  $.ajax({
+    url: url,
+    type: 'GET',
+    dataType: 'json'
+  })
+    .done(function(res) {
+      if(res.success) {
+        res.data.forEach(print_message);
+      } else {
+        console.log(res.message);
+      }
+    });
+}
+
 function print_message(msg) {
     var template = document.querySelector('#message_template');
-    template.content.querySelector('.message_poster').innerText = msg.user_id;
+    template.content.querySelector('.message_poster').innerText = msg.username;
     template.content.querySelector('.message_content').innerText = msg.content;
 
     var clone = document.importNode(template.content, true);
