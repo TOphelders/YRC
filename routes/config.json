@@ -1,4 +1,9 @@
 {
   "host": "localhost",
-  "dbname": "yrc"
+  "dbname": "yrc",
+  "collections": ["users", "messages"],
+  "server_options": {
+    "auto_recconect": true,
+    "poolSize": 5
+  }
 }
