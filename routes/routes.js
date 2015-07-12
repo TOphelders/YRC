@@ -1,4 +1,3 @@
-var fs = require('fs');
 var config = require(__dirname + '/config.json');
 var db = require('monk')(config.host + '/' + config.dbname, config.server_options);
 
@@ -8,10 +7,12 @@ config.collections.forEach(function(col) {
 });
 
 module.exports = function(app, io) {
-  fs.readdirSync(__dirname).forEach(function(file) {
-    if (file === 'routes.js' || file.substr(file.lastIndexOf('.') + 1) !== 'js') return;
+  messenger = require(__dirname + '/messenger.js')(io, cols);
+  require(__dirname + '/http_messaging.js')(app, messenger);
 
-    var name = file.substr(0, file.indexOf('.'));
-    require('./' + name)(app, io, cols);
+  io.on('connection', function(socket) {
+    //Notify of new connections to everyone already connected
+    socket.broadcast.emit('user-connected');
+    require(__dirname + '/socket_messaging.js')(socket, messenger);
   });
-}
+};
