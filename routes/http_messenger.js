@@ -1,4 +1,4 @@
-module.exports = function(app, model) {
+module.exports = function(app, handler) {
   app.get('/message(/start/:start/end/:end)?', function(req, res) {
     var start = Number(req.params.start);
     var end = Number(req.params.end);
@@ -7,20 +7,20 @@ module.exports = function(app, model) {
       res.json(messages);
     };
 
-    if (start && end) model.retrieve_set([start, end]).then(send);
-    else model.retrieve_set().then(send);
+    if (start && end) handler.retrieve_set([start, end]).then(send);
+    else handler.retrieve_set().then(send);
   });
 
   app.post('/message', function(req, res) {
     var message = req.body;
-    model.send(message).then(function(reply) {
+    handler.send(message).then(function(reply) {
       res.json(reply);
     });
   });
 
   app.get('/message/:id', function(req, res) {
     var id = req.params.id;
-    model.retrieve(id).then(function(message) {
+    handler.retrieve(id).then(function(message) {
       res.json(message);
     });
   });
@@ -28,14 +28,14 @@ module.exports = function(app, model) {
   app.put('/message/:id', function(req, res) {
     var id = req.params.id;
     var edit = req.body;
-    model.edit(id, edit).then(function(reply) {
+    handler.edit(id, edit).then(function(reply) {
       res.json(reply);
     });
   });
 
   app.delete('/message/:id', function(req, res) {
     var id = req.params.id;
-    model.delete(id).then(function(reply) {
+    handler.delete(id).then(function(reply) {
       res.json(reply);
     });
   });

@@ -5,6 +5,9 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+// Global variable to point to root directory
+global.app_root = __dirname;
+
 // Set up middleware
 app.use(express.static(__dirname + '/public'));
 app.use(body_parser.json());

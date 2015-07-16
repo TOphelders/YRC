@@ -1,7 +1,7 @@
 function Messenger(io, cols) {
   this.sockets = io;
-  this.msg_model = require('../models/message_model.js')(cols.messages);
-  this.usr_model = require('../models/user_model.js')(cols.users);
+  this.msg_model = require(global.app_root + '/models/message_model.js')(cols.messages);
+  this.usr_model = require(global.app_root + '/models/user_model.js')(cols.users);
 }
 
 Messenger.prototype.retrieve_set = function(range) {
@@ -24,9 +24,9 @@ Messenger.prototype.retrieve_set = function(range) {
   return this.msg_model.find(range)
     .then(found)
     .then(function() {
-      return succeed(reply_data);
+      return succeed('message-retrieve-set', reply_data);
     },
-    fail('Unable to retrieve messages ' + range[0] + ' to ' + range[1]));
+    fail('message-retrieve-set', 'Unable to retrieve messages ' + range[0] + ' to ' + range[1]));
 }
 
 Messenger.prototype.send = function(data) {
@@ -45,9 +45,10 @@ Messenger.prototype.send = function(data) {
   var create_promise = this.msg_model.create(msg_data)
   create_promise.then(emit);
   create_promise.then(function() {
-    return succeed('Message successfully sent');
+    return succeed('message-send', 'Message successfully sent');
   },
-  fail('Oops! Something went wrong when sending your message, wait for a second and try again.'));
+  fail('message-send', 'Oops! Something went wrong when sending your message, ' +
+       'wait for a second and try again.'));
 };
 
 Messenger.prototype.retrieve = function(id) {
@@ -61,9 +62,9 @@ Messenger.prototype.retrieve = function(id) {
     })
     .then(function(user) { reply_data.username = user.username; })
     .then(function() {
-      return succeed(reply_data);
+      return succeed('message-retrieve', reply_data);
     },
-    fail('Unable to find message: ' + id));
+    fail('message-retrieve', 'Unable to find message: ' + id));
 };
 
 Messenger.prototype.edit = function(id, edit) {
@@ -75,9 +76,9 @@ Messenger.prototype.edit = function(id, edit) {
   var update_promise = this.msg_model.update(id, edit);
   update_promise.then(emit);
   return update_promise.then(function() {
-    return succeed('Successfully updated message: ' + id);
+    return succeed('message-edit', 'Successfully updated message: ' + id);
   },
-  fail('There was an error trying to update message: ' + id));
+  fail('message-edit', 'There was an error trying to update message: ' + id));
 };
 
 Messenger.prototype.delete = function(id) {
@@ -89,12 +90,12 @@ Messenger.prototype.delete = function(id) {
   var remove_promise = this.msg_model.remove(id);
   remove_promise.then(emit);
   return remove_promise.then(function() {
-    return succeed('Successfully deleted message: ' + id);
+    return succeed('message-delete', 'Successfully deleted message: ' + id);
   },
-  fail('Something went wrong trying to delete message: ' + id));
+  fail('message-delete', 'Something went wrong trying to delete message: ' + id));
 };
 
-function succeed(data, message) {
+function succeed(action, data, message) {
   if (typeof data === 'string') {
     message = data;
     data = null;
@@ -102,20 +103,22 @@ function succeed(data, message) {
     data = null;
     message = null;
   } else if (typeof message === 'undefined') message = null;
-  console.log(data);
 
   return {
     success: true,
+    action: action,
     data: data,
     message: message
   };
 }
 
-function fail(message) {
+function fail(action, message) {
+  if (typeof message === 'undefined') message = null;
   return function(err) {
     console.log(err.code + ': ' + err.message);
     return {
-      success: false,
+      success:false,
+      action: action,
       data: null,
       message: message
     };
