@@ -3,4 +3,6 @@ node_modules
 *.log
 *.gz
 
+# working files
+public/build/
 *.swp
