@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(socket, model) {
   socket.on('message-retrieve-set', function(range) {
     model.retrieve_set().then(function(messages) {

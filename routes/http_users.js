@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(app, handler) {
   app.post('/user', function(req, res) {
     var data = req.body;

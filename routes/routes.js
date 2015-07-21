@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 var config = require(__dirname + '/config.json');
 var db = require('monk')(config.host + '/' + config.dbname, config.server_options);

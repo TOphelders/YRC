@@ -1,3 +1,5 @@
+'use strict';
+
 function UserHandler(io, cols) {
   this.sockets = io;
   this.usr_model = require(global.app_root + '/models/user_model.js')(cols.users);
@@ -27,11 +29,10 @@ UserHandler.prototype.retrieve = function(identity) {
 };
 
 UserHandler.prototype.edit = function(identity, data) {
-  var self = this;
   var edit = {};
   var emit = function(user) {
-    self.sockets.emit('user-edited', user);
-  };
+    this.sockets.emit('user-edited', user);
+  }.bind(this);
 
   Object.keys(data).forEach(function(element, key) {
     if (['username', 'password', 'email'].includes(key)) edit[key] = element;
@@ -47,10 +48,9 @@ UserHandler.prototype.edit = function(identity, data) {
 };
 
 UserHandler.prototype.delete = function(identity) {
-  var self = this;
   var emit = function(user) {
-    self.sockets.emit('user-deleted', user);
-  };
+    this.sockets.emit('user-deleted', user);
+  }.bind(this);
 
   var remove_promise = this.usr_model.remove(identity);
   remove_promise.then(emit);

@@ -1,3 +1,5 @@
+'use strict';
+
 function Message(collection) {
   this.collection = collection;
 }
@@ -61,6 +63,8 @@ function format_data(data) {
   else return format_doc(data);
 };
 
+var cache = {};
 module.exports = function(collection) {
-  return new Message(collection);
+  if (!(collection.name in cache)) cache[collection.name] = new Message(collection);
+  return cache[collection.name];
 };

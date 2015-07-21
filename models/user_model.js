@@ -1,3 +1,5 @@
+'use strict';
+
 var User = function(collection) {
   this.collection = collection;
 }
@@ -51,6 +53,8 @@ function is_id(string) {
   return (string.match(/^[0-9a-fA-F]{24}$/));
 }
 
+var cache = {};
 module.exports = function(collection) {
-  return new User(collection);
+  if (!(collection.name in cache)) cache[collection.name] = new User(collection);
+  return cache[collection.name];
 }

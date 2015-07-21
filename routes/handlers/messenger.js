@@ -1,3 +1,5 @@
+'use strict';
+
 function Messenger(io, cols) {
   this.sockets = io;
   this.msg_model = require(global.app_root + '/models/message_model.js')(cols.messages);
@@ -26,11 +28,11 @@ Messenger.prototype.retrieve_set = function(range) {
     .then(function() {
       return succeed('message-retrieve-set', reply_data);
     },
-    fail('message-retrieve-set', 'Unable to retrieve messages ' + range[0] + ' to ' + range[1]));
+    fail('message-retrieve-set', 'Unable to retrieve messages ' +
+         range[0] + ' to ' + range[1]));
 }
 
 Messenger.prototype.send = function(data) {
-  var self = this;
   var username = data.username;
   var msg_data = {
     user_id: data.id,
@@ -39,8 +41,8 @@ Messenger.prototype.send = function(data) {
 
   var emit = function(message) {
     message.username = username;
-    self.sockets.emit('message-posted', message);
-  };
+    this.sockets.emit('message-posted', message);
+  }.bind(this);
 
   var create_promise = this.msg_model.create(msg_data)
   create_promise.then(emit);
@@ -68,10 +70,9 @@ Messenger.prototype.retrieve = function(id) {
 };
 
 Messenger.prototype.edit = function(id, edit) {
-  var self = this;
   var emit = function(message) {
-    self.sockets.emit('message-edited', message);
-  };
+    this.sockets.emit('message-edited', message);
+  }.bind(this);
 
   var update_promise = this.msg_model.update(id, edit);
   update_promise.then(emit);
@@ -82,10 +83,9 @@ Messenger.prototype.edit = function(id, edit) {
 };
 
 Messenger.prototype.delete = function(id) {
-  var self = this;
   var emit = function(message) {
-    self.sockets.emit('message-deleted', message);
-  };
+    this.sockets.emit('message-deleted', message);
+  }.bind(this);
 
   var remove_promise = this.msg_model.remove(id);
   remove_promise.then(emit);

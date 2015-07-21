@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(app, handler) {
   app.get('/message(/start/:start/end/:end)?', function(req, res) {
     var start = Number(req.params.start);

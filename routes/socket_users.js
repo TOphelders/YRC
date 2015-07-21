@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(socket, model) {
   socket.on('user-create', function(user_data) {
     model.create(user_data).then(function(reply) {
