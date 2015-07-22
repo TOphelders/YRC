@@ -3,26 +3,30 @@
 <head>
   <meta charset='UTF-8'>
   <title>YRC</title>
-  <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
   <script src='/socket.io/socket.io.js'></script>
+  <script src='https://fb.me/react-0.13.3.js'></script>
 </head>
 <body>
-  <div id='page'>
-    <template id='message_template'>
-    <div class='message'>
-      <div class='message_info'>
-        <span class='message_poster'></span>
-      </div>
-      <span class='message_content'></span>
-    </div>
-    </template>
+  <div id='app'>
   </div>
 
-  <form id='create_message' action='/message' method='post'>
-    <input type='text' id='new_content'/>
-    <input type='submit' value='+'/>
-  </form>
+  <!--
+    <div id='page'>
+      <template id='message_template'>
+      <div class='message'>
+        <div class='message_info'>
+          <span class='message_poster'></span>
+        </div>
+        <span class='message_content'></span>
+      </div>
+      </template>
+    </div>
 
-  <script type='text/javascript' src='/js/post.js'></script>
+    <form id='create_message' action='/message' method='post'>
+      <input type='text' id='new_content'/>
+      <input type='submit' value='+'/>
+    </form>
+  -->
+  <script type='text/javascript' src='/build/messages.js'></script>
 </body>
 </html>
