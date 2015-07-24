@@ -3,7 +3,7 @@
 module.exports = function(socket, model) {
   socket.on('message-retrieve-set', function(range) {
     model.retrieve_set().then(function(messages) {
-      socket.emit('message-retrieved-set', messages);
+      socket.emit('message-reply', messages);
     });
   });
 
@@ -15,7 +15,7 @@ module.exports = function(socket, model) {
 
   socket.on('message-retrieve', function(id) {
     model.retrieve(id).then(function(message) {
-      socket.emit('message-retrieved', message);
+      socket.emit('message-reply', message);
     });
   });
 

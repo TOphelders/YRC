@@ -9,7 +9,7 @@ module.exports = function(socket, model) {
 
   socket.on('user-retrieve', function(identity) {
     model.retrieve(identity).then(function(user) {
-      socket.emit('user-retrieved', user);
+      socket.emit('user-reply', user);
     });
   });
 
