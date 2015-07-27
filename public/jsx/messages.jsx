@@ -1,13 +1,11 @@
 'use strict';
 
-let socket = io();
-
-class MessagingDiv extends React.Component {
+export class MessagingDiv extends React.Component {
   render() {
     return (
-      <div>
-        <SentList sent={[{user_id: 'Test', time_sent: 'Init', content: 'Test content'}]} />
-        <PendingList pending={[{user_id: 'Test2', time_sent: 'Init', content: 'Test content 2'}]} />
+      <div className='messagingDiv'>
+        <SentList sent={[{message_id: 'asdf', user_id: 'fsa', username: 'Test', time_sent: 'Init', content: 'Test content'}]} />
+        <PendingList pending={[{message_id: 'fff', user_id: 'ffff', username: 'Test2', time_sent: 'Init', content: 'Test content 2'}]} />
         <MessageForm />
       </div>
     );
@@ -34,11 +32,12 @@ class MessageList extends React.Component {
   render() {
     let messages = this.props.messages;
     return (
-      <div>
+      <div className='messageList'>
         {messages.map(function(message) {
-          return <Message username={message.user_id}
+          return <Message username={message.username}
                           timestamp={message.time_sent}
-                          content={message.content} />;
+                          content={message.content}
+                          key={message.message_id}/>;
         })}
       </div>
     );
@@ -96,8 +95,3 @@ class MessageBody extends React.Component {
     );
   }
 }
-
-React.render(
-  <MessagingDiv />,
-  document.getElementById('app')
-);
