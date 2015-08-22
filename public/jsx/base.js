@@ -1,23 +1,30 @@
+'use strict';
 import { Dispatcher } from 'flux';
 
-export class MessageList {
+export class IDList {
+  /*
+   * A class to store items to be displayed,
+   * allows for O(1) retrieval and modification
+   * by both index and message id
+   */
   constructor() {
     this._messages = [];
     this._ids = {};
   }
 
-  at(index) {
-    return this._messages[index];
-  }
-
-  from_id(id) {
-    let index = this._ids[id];
+  retrieve(id) {
+    let index = (typeof id === 'string') ? this._ids[id] : id;
     return this._messages[index];
   }
 
   push(message) {
     this._ids[message.message_id] = this._messages.length;
     this._messages.push(message);
+  }
+
+  modify(id, update) {
+    let index = (typeof id === 'string') ? this._ids[id] : id;
+    this._messages[index] = update;
   }
 
   remove(id) {
@@ -31,8 +38,12 @@ export class MessageList {
     }
   }
 
+  get length() {
+    return this._messages.length;
+  }
+
   [Symbol.iterator]() {
-    var index = -1;
+    let index = -1;
     return {
       next: () => ({value: this._messages[++index],
                     done: index == this._messages.length})

@@ -15,6 +15,10 @@ export class MessagingDiv extends React.Component {
 }
 
 class SentList extends React.Component {
+  /*
+   * Display any messages that are guaranteed to
+   * have been recieved by the server
+   */
   render() {
     return (
       <MessageList messages={this.props.sent} />
@@ -23,6 +27,10 @@ class SentList extends React.Component {
 }
 
 class PendingList extends React.Component {
+  /*
+   * Display any messages that have not yet been
+   * recieved by the server
+   */
   render() {
     return (
       <MessageList messages={this.props.pending} />
