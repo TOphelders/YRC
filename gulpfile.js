@@ -21,6 +21,8 @@ gulp.task('watchify', function() {
 
   bundler.on('update', function() {
     bundle_js(bundler);
+  }).on('error', function(err) {
+    console.log(err.message);
   });
 });
 
