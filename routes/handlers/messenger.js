@@ -41,7 +41,7 @@ Messenger.prototype.send = function(data) {
 
   var emit = function(message) {
     message.username = username;
-    this.sockets.emit('message-posted', message);
+    this.sockets.emit('message-reply', succeed('message-posted', message));
   }.bind(this);
 
   var create_promise = this.msg_model.create(msg_data)
@@ -71,7 +71,7 @@ Messenger.prototype.retrieve = function(id) {
 
 Messenger.prototype.edit = function(id, edit) {
   var emit = function(message) {
-    this.sockets.emit('message-edited', message);
+    this.sockets.emit('message-reply', succeed('message-edited', message));
   }.bind(this);
 
   var update_promise = this.msg_model.update(id, edit);
@@ -84,7 +84,7 @@ Messenger.prototype.edit = function(id, edit) {
 
 Messenger.prototype.delete = function(id) {
   var emit = function(message) {
-    this.sockets.emit('message-deleted', message);
+    this.sockets.emit('message-reply', succeed('message-deleted', message));
   }.bind(this);
 
   var remove_promise = this.msg_model.remove(id);
