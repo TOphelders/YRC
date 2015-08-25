@@ -1,6 +1,7 @@
 'use strict';
 import { React } from './base.js';
-import { MessagingDiv } from './messages.jsx';
+import { default as stores } from './stores/stores.js';
+import { MessagingDiv } from './messages_view.jsx';
 
 let socket = io();
 
