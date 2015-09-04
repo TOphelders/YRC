@@ -1,6 +1,7 @@
 'use strict';
 import { Store } from 'flux/utils';
-import { IDList, MessageActions } from '../base.js';
+import { IDList } from '../base.js';
+import { MessageActions } from '../actions.js';
 
 export default class SentStore extends Store {
   constructor(dispatcher) {
@@ -23,11 +24,19 @@ export default class SentStore extends Store {
         // else
         //   this._messages = retrieved.concat(this._messages);
         this._messages = this._messages.concat(retrieved);
+        break;
       case MessageActions.POSTED:
         this._messages.push(data);
+        break;
       case MessageActions.EDITED:
       case MessageActions.DELETED:
         this._messages.modify(data.message_id, data);
+        break;
+      default:
+        return true;
     }
+
+    this.__emitChange();
+    return true;
   }
 };

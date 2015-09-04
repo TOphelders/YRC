@@ -1,6 +1,7 @@
 'use strict';
 import { Store } from 'flux/utils';
-import { IDList, MessageActions } from '../base.js';
+import { IDList } from '../base.js';
+import { MessageActions } from '../actions.js';
 
 export default class PendingStore extends Store {
   constructor(dispatcher) {
@@ -18,8 +19,15 @@ export default class PendingStore extends Store {
     switch(action) {
       case MessageActions.SEND:
         this._messages.push(data);
+        break;
       case MessageActions.POSTED:
         this._messages.remove(data.message_id);
+        break;
+      default:
+        return true;
     }
+
+    this.__emitChange();
+    return true;
   }
 };
