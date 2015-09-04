@@ -1,6 +1,5 @@
 'use strict';
-import { React } from './base.js';
-import { appDispatcher } from './base.js';
+import { React } from '../base.js';
 
 export class MessagingDiv extends React.Component {
   render() {

@@ -1,9 +1,14 @@
 'use strict';
-import { React } from './base.js';
+import { React, AppDispatcher, socket } from './base.js';
 import { default as stores } from './stores/stores.js';
-import { MessagingDiv } from './messages_view.jsx';
+import { MessagingDiv } from './views/messages_view.jsx';
 
-let socket = io();
+socket.on('connect', function() {
+  console.log('Connected!');
+});
+socket.on('message-reply', function(payload) {
+  AppDispatcher.dispatch(payload);
+});
 
 React.render(
   <MessagingDiv />,
